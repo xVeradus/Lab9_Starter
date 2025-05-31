@@ -97,7 +97,6 @@
 
   
   <script>
-    TrackJS.track('Testing TrackJS!');
     class CalculationError extends Error {
       constructor(message) {
         super(message);
@@ -118,7 +117,7 @@
         if (typeof originalError === 'function') {
             originalError(message, source, lineno, colno, errorObject);
         }
-        return false;
+        return true;
     }
 
     let form = document.querySelector('form');
@@ -162,7 +161,6 @@
   });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-    TrackJS.track('Testing TrackJS!');
     // Start your code here
     const conLog = document.querySelector('#con-log');
     const conError = document.querySelector('#con-error');
