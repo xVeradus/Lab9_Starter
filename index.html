@@ -47,6 +47,13 @@
       width: 122px;
     }
   </style>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+<script>
+  window.TrackJS && TrackJS.install({ 
+    token: "3cbc25352e3d4d18b04e76c57006b897"
+    // for more configuration options, see https://docs.trackjs.com
+  });
+</script>
 </head>
 
 <body>
@@ -69,38 +76,164 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="con-log">Console Log</button>
+      <button id="con-error">Console Error</button>
+      <button id="con-count">Console Count</button>
+      <button id="con-warn">Console Warn</button>
+      <button id="con-assert">Console Assert</button>
+      <button id="con-clear">Console Clear</button>
+      <button id="con-dir">Console Dir</button>
+      <button id="con-dirxml">Console dirxml</button>
+      <button id="con-start">Console Group Start</button>
+      <button id="con-end">Console Group End</button>
+      <button id="con-table">Console Table</button>
+      <button id="con-start-timer">Start Timer</button>
+      <button id="con-end-timer">End Timer</button>
+      <button id="con-trace">Console Trace</button>
+      <button id="con-global">Trigger a Global Error</button>
     </section>
   </main>
 
+
+  
   <script>
+    TrackJS.track('Testing TrackJS!');
+    class CalculationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "CalculationError";
+      }
+    }
+
+    const originalError = console.error;
+
+    window.onerror = function(message, source, lineno, colno, errorObject) {
+        console.groupCollapsed("%cGLOBAL UNCAUGHT ERROR (window.onerror)", "color:red; font-weight:bold;");
+        console.log("Message: ", message);
+        console.log("Source: ", source);
+        console.log("Line: ", lineno, " Col: ", colno);
+        console.log("Error Object: ", errorObject);
+        console.groupEnd();
+
+        if (typeof originalError === 'function') {
+            originalError(message, source, lineno, colno, errorObject);
+        }
+        return false;
+    }
+
     let form = document.querySelector('form');
-    form.addEventListener('submit', e => {
+    let calculateBtn = document.querySelector('#calculate');
+    calculateBtn.addEventListener('click', e => {
       e.preventDefault();
       let output = document.querySelector('output');
+      if (!output) {
+        console.error('Output element not found');
+        return;
+      }
+
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-    });
+
+      try{
+        output.innerHTML = '';
+
+        if (firstNum === '' || secondNum === '') {
+          throw new CalculationError('Both numbers must be provided');
+        }
+        if (operator === '/' && parseFloat(secondNum) === 0) {
+          throw new CalculationError('Division by zero is not allowed');
+        }
+
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        if (isNaN(result) || !isFinite(result)) {
+          throw new CalculationError('Invalid calculation result');
+        }
+        output.innerHTML = result;
+        console.log(`Calculation successful: ${firstNum} ${operator} ${secondNum} = ${result}`);
+      } catch (error) {
+        console.error('Calculation error:', error);
+        if (output) {
+          output.innerHTML = error.message;
+        }
+      } finally {
+        console.log('Calculation attempt completed.');
+      }
+  });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-
+    TrackJS.track('Testing TrackJS!');
     // Start your code here
+    const conLog = document.querySelector('#con-log');
+    const conError = document.querySelector('#con-error');
+    const conCount = document.querySelector('#con-count');
+    const conWarn = document.querySelector('#con-warn');
+    const conAssert = document.querySelector('#con-assert');
+    const conClear = document.querySelector('#con-clear');
+    const conDir = document.querySelector('#con-dir');
+    const conDirxml = document.querySelector('#con-dirxml');
+    const conStart = document.querySelector('#con-start');
+    const conEnd = document.querySelector('#con-end');
+    const conTable = document.querySelector('#con-table');
+    const conStartTimer = document.querySelector('#con-start-timer');
+    const conEndTimer = document.querySelector('#con-end-timer');
+    const conTrace = document.querySelector('#con-trace');
+    const conGlobal = document.querySelector('#con-global');
+
+
+    conLog.addEventListener('click', () => {
+      console.log('This is a console log message.');
+    });
+    conError.addEventListener('click', () => {
+      console.error('This is a console error message.');
+    });
+
+    let clicks = 0;
+    conCount.addEventListener('click', () => {
+      console.count('Count clicked');
+      clicks++;
+    });
+    conWarn.addEventListener('click', () => {
+      console.warn('This is a console warning message.');
+    });
+    conAssert.addEventListener('click', () => {
+      let x = 5;
+      let y = 10;
+      console.assert(x > y, 'x is not greater than y');
+      console.assert(false, 'This is a console assert message.');
+    });
+    conClear.addEventListener('click', () => {
+      console.clear();
+    });
+    conDir.addEventListener('click', () => {
+      console.dir(document.querySelector('form'));
+    });
+    conDirxml.addEventListener('click', () => {
+      console.dirxml(document.querySelector('form'));
+    });
+    conStart.addEventListener('click', () => {
+      console.group('This is a console group start message.');
+    });
+    conEnd.addEventListener('click', () => {
+      console.groupEnd();
+      console.log('This is a console group End message.');
+    });
+    conTable.addEventListener('click', () => {
+      console.table([{ name: 'Greta', age: 125 }, { name: 'Bobb', age: 10 }]);
+    });
+    conStartTimer.addEventListener('click', () => {
+      console.time('Timer');
+    });
+    conEndTimer.addEventListener('click', () => {
+      console.timeEnd('Timer');
+    });
+    conTrace.addEventListener('click', () => {
+      console.trace('This is a console trace message.');
+    });
+
+    conGlobal.addEventListener('click', () => {
+      throw new Error('This is a global error triggered by the button click.');
+    });
     // You may move this JS to another file if you wish
   </script>
 </body>
